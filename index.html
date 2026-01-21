@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings King | Indian Markets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #05070a; --card: #11141b; --accent: #00d2ff; --text: #ffffff; --border: #1e2631; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin: 40px 0; }
+        .header h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; margin: 0; background: linear-gradient(to right, #00d2ff, #3a7bd5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .search { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 30px; font-size: 1rem; }
+        .date-title { color: var(--accent); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin: 40px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .stock-row { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .stock-row:hover { border-color: var(--accent); background: #161b26; }
+        .sym { font-weight: 700; font-size: 1.1rem; }
+        .comp { color: #8b949e; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>EARNINGS KING</h1><p style="color:#8b949e">LIVE NSE CALENDAR</p></div>
+        <input type="text" id="s" class="search" placeholder="Quick Search Stock..." onkeyup="f()">
+        <div id="out"></div>
+    </div>
+    <script>
+        let d = [];
+        async function init() {
+            const r = await fetch('results_data.json');
+            d = await r.json();
+            show(d);
+        }
+        function show(data) {
+            const out = document.getElementById('out');
+            out.innerHTML = '';
+            const groups = data.reduce((a, x) => { (a[x.date] = a[x.date] || []).push(x); return a; }, {});
+            Object.keys(groups).sort((a,b) => new Date(a)-new Date(b)).forEach(date => {
+                let html = `<div class="date-title">${date}</div>`;
+                groups[date].forEach(s => {
+                    html += `<div class="stock-row"><div><div class="sym">${s.symbol}</div><div class="comp">${s.company}</div></div><div style="font-size:0.7rem; color:var(--accent)">FINANCIAL RESULTS</div></div>`;
+                });
+                out.innerHTML += html;
+            });
+        }
+        function f() {
+            const q = document.getElementById('s').value.toLowerCase();
+            show(d.filter(x => x.symbol.toLowerCase().includes(q) || x.company.toLowerCase().includes(q)));
+        }
+        init();
+    </script>
+</body>
+</html>
